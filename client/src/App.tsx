@@ -27,23 +27,21 @@ function App() {
   }
 
   useEffect(() => {
-    const evtSource = new EventSource("http://localhost:3000/messages");
+    const socket = new WebSocket("ws://localhost:3000");
 
-    evtSource.onerror = () => {
-      console.log('Error: connection failed');
-    }
+    socket.addEventListener("open", () => {
+      socket.send("Hello Server!");
+      console.log('Connection open');
+    });
 
-    evtSource.onopen = () => {
-      console.log('Connect to server');
-    }
-
-    evtSource.onmessage = (e) => {
-      setMessages(messages => [e.data, ...messages]);
-    }
+    socket.addEventListener("message", (event) => {
+      setMessages(messages => [event.data, ...messages]);
+    });
 
     return () => {
-      evtSource.close();
+      socket.close();
     }
+
   }, [])
 
   return (
